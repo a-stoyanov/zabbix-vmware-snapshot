@@ -21,9 +21,9 @@ Tested on:
 
 <b>{#VM.NAME} Snapshot State: {#VM.NAME} Snapshot Oldest Date</b> - Item prototype pulls oldest snapshot created date via regex pre-processing from parent
 
-<b>[{#VM.NAME}]: VM has more than {$SNAP_COUNT_CRIT} open snapshots</b> - Trigger protptype using a pre-defined threshold macro. Raises a HIGH severity alert
+<b>[{#VM.NAME}]: VM has more than {$SNAP_COUNT_CRIT} open snapshots</b> - Trigger prototype using a pre-defined threshold macro. Raises a HIGH severity alert
 
-<b>[{#VM.NAME}]: VM has more than {$SNAP_COUNT_WARN} open snapshots</b> - Trigger protptype using a pre-defined threshold macro. Raises a WARNING severity alert. Depends on previous.
+<b>[{#VM.NAME}]: VM has more than {$SNAP_COUNT_WARN} open snapshots</b> - Trigger prototype using a pre-defined threshold macro. Raises a WARNING severity alert. Depends on previous.
 
 <b>[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_CRIT} (Oldest snapshot date: {ITEM.VALUE2})</b> - Trigger protptype using a pre-defined threshold macro. Raises a HIGH severity alert
 
@@ -34,7 +34,7 @@ Tested on:
 
 1. Create a service account on your vCenter server with scope global and read-only permissions
 2. Import yaml template to your zabbix server
-3. Check/change pre-defined template macros. This can also be done per host.
+3. Check/change pre-defined template macros. This can also be done on the host level.
 4. Attach template to your vCenter host. Make sure required macros are filled out
 
 
