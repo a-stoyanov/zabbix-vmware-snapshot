@@ -1,0 +1,151 @@
+zabbix_export:
+  version: '6.4'
+  template_groups:
+    - uuid: ddedbdc1a08841ea9dbe8af361dff5fc
+      name: Custom/VMware
+  templates:
+    - uuid: e45ac62ca15e47d284afe092476af436
+      template: 'VMware Snapshot'
+      name: 'VMware Snapshot'
+      description: |
+        Template downloaded from: https://github.com/a-stoyanov/zabbix-vmware-snapshot
+      vendor:
+        name: https://github.com/a-stoyanov/
+        version: 6.4-0
+      groups:
+        - name: Custom/VMware
+      discovery_rules:
+        - uuid: 3439962c1d6a4a62a449091f6e9f42a0
+          name: 'Discover VM Snapshots'
+          type: SIMPLE
+          key: 'vmware.vm.discovery[{$VMWARE.URL}]'
+          delay: 1h
+          username: '{$VMWARE.USERNAME}'
+          password: '{$VMWARE.PASSWORD}'
+          description: 'Discovery of guest VM snapshots'
+          item_prototypes:
+            - uuid: c4e15a48fccf4ed786e37997d169c005
+              name: '{#VM.NAME} Snapshot Age'
+              type: DEPENDENT
+              key: 'vmware.vm.snapshot.age[{#VM.NAME}]'
+              delay: '0'
+              units: uptime
+              preprocessing:
+                - type: REGEX
+                  parameters:
+                    - '(\d{4}-\d{2}-\d{2})'
+                    - \1
+                  error_handler: DISCARD_VALUE
+                - type: JAVASCRIPT
+                  parameters:
+                    - |
+                      var snapdate = new Date(value);
+                      var nowdate = new Date();
+                      var diffmsec = nowdate.getTime() - snapdate.getTime();
+                      var diffsec = Math.floor(diffmsec / 1000);
+                      return(diffsec)
+              master_item:
+                key: 'vmware.vm.snapshot.get[{$VMWARE.URL},{#VM.UUID}]'
+            - uuid: 492da63757ff43dc89b3ba29cc8b6d9f
+              name: '{#VM.NAME} Snapshot Count'
+              type: DEPENDENT
+              key: 'vmware.vm.snapshot.count[{#VM.NAME}]'
+              delay: '0'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - $.count
+              master_item:
+                key: 'vmware.vm.snapshot.get[{$VMWARE.URL},{#VM.UUID}]'
+              trigger_prototypes:
+                - uuid: ebea58d129474b9b8f3531c5e43f1b0b
+                  expression: 'last(/VMware Snapshot/vmware.vm.snapshot.count[{#VM.NAME}])>{$SNAP_COUNT_CRIT}'
+                  name: '[{#VM.NAME}]: VM has more than {$SNAP_COUNT_CRIT} open snapshots'
+                  priority: HIGH
+                  tags:
+                    - tag: snapshot
+                      value: open
+                - uuid: 0c8eabd08ed649458466883cbd77fa26
+                  expression: 'last(/VMware Snapshot/vmware.vm.snapshot.count[{#VM.NAME}])>{$SNAP_COUNT_WARN}'
+                  name: '[{#VM.NAME}]: VM has more than {$SNAP_COUNT_WARN} open snapshots'
+                  priority: WARNING
+                  dependencies:
+                    - name: '[{#VM.NAME}]: VM has more than {$SNAP_COUNT_CRIT} open snapshots'
+                      expression: 'last(/VMware Snapshot/vmware.vm.snapshot.count[{#VM.NAME}])>{$SNAP_COUNT_CRIT}'
+                  tags:
+                    - tag: snapshot
+                      value: open
+            - uuid: fca01044219645c691d015bee5941eb7
+              name: '{#VM.NAME} Snapshot State'
+              type: SIMPLE
+              key: 'vmware.vm.snapshot.get[{$VMWARE.URL},{#VM.UUID}]'
+              delay: 1h
+              trends: '0'
+              value_type: TEXT
+              username: '{$VMWARE.USERNAME}'
+              password: '{$VMWARE.PASSWORD}'
+            - uuid: b95d2b82566d4d768aa2729bdb2b977d
+              name: '{#VM.NAME} Snapshot Oldest Date'
+              type: DEPENDENT
+              key: 'vmware.vm.snapshot.oldestdate[{#VM.NAME}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              preprocessing:
+                - type: REGEX
+                  parameters:
+                    - '(\d{4}-\d{2}-\d{2})'
+                    - \1
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
+              master_item:
+                key: 'vmware.vm.snapshot.get[{$VMWARE.URL},{#VM.UUID}]'
+          trigger_prototypes:
+            - uuid: e9089febdeb94f89a7df4f5dae698feb
+              expression: |
+                last(/VMware Snapshot/vmware.vm.snapshot.age[{#VM.NAME}])>{$SNAP_AGE_CRIT}
+                and
+                last(/VMware Snapshot/vmware.vm.snapshot.oldestdate[{#VM.NAME}])<>0
+              name: '[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_CRIT} (Oldest snapshot date: {ITEM.VALUE2})'
+              priority: HIGH
+              tags:
+                - tag: snapshot
+                  value: age
+            - uuid: 1f1d8421421d4f2f89bb11eec2cb465f
+              expression: |
+                last(/VMware Snapshot/vmware.vm.snapshot.age[{#VM.NAME}])>{$SNAP_AGE_WARN}
+                and
+                last(/VMware Snapshot/vmware.vm.snapshot.oldestdate[{#VM.NAME}])<>0
+              name: '[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_WARN} (Oldest snapshot date: {ITEM.VALUE2})'
+              priority: WARNING
+              dependencies:
+                - name: '[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_CRIT} (Oldest snapshot date: {ITEM.VALUE2})'
+                  expression: |
+                    last(/VMware Snapshot/vmware.vm.snapshot.age[{#VM.NAME}])>{$SNAP_AGE_CRIT}
+                    and
+                    last(/VMware Snapshot/vmware.vm.snapshot.oldestdate[{#VM.NAME}])<>0
+              tags:
+                - tag: snapshot
+                  value: age
+      tags:
+        - tag: vmware
+          value: snapshot
+      macros:
+        - macro: '{$SNAP_AGE_CRIT}'
+          value: 3d
+          description: 'Max number of days since since snapshot was opened before triggering a HIGH alert'
+        - macro: '{$SNAP_AGE_WARN}'
+          value: 1d
+          description: 'Max number of days since since snapshot was opened before triggering a WARNING alert'
+        - macro: '{$SNAP_COUNT_CRIT}'
+          value: '3'
+          description: 'Max number of snapshots before triggering a HIGH alert'
+        - macro: '{$SNAP_COUNT_WARN}'
+          value: '1'
+          description: 'Max number of snapshots before triggering a WARNING alert'
+        - macro: '{$VMWARE.PASSWORD}'
+          description: 'VMware service {$USERNAME} user password'
+        - macro: '{$VMWARE.URL}'
+          description: 'VMware service (vCenter or ESX hypervisor) SDK URL (https://servername/sdk)'
+        - macro: '{$VMWARE.USERNAME}'
+          description: 'VMware service user name'
