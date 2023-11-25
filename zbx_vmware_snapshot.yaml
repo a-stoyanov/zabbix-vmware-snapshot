@@ -7,10 +7,9 @@ zabbix_export:
     - uuid: e45ac62ca15e47d284afe092476af436
       template: 'VMware Snapshot'
       name: 'VMware Snapshot'
-      description: |
-        Template downloaded from: https://github.com/a-stoyanov/zabbix-vmware-snapshot
+      description: 'Template downloaded from: https://github.com/a-stoyanov/zabbix-vmware-snapshot'
       vendor:
-        name: https://github.com/a-stoyanov/
+        name: 'https://github.com/a-stoyanov/'
         version: 6.4-0
       groups:
         - name: Custom/VMware
@@ -31,6 +30,10 @@ zabbix_export:
               delay: '0'
               units: uptime
               preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - $.oldestdate
+                  error_handler: DISCARD_VALUE
                 - type: REGEX
                   parameters:
                     - '(\d{4}-\d{2}-\d{2})'
@@ -92,12 +95,15 @@ zabbix_export:
               trends: '0'
               value_type: TEXT
               preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - $.oldestdate
+                  error_handler: DISCARD_VALUE
                 - type: REGEX
                   parameters:
                     - '(\d{4}-\d{2}-\d{2})'
                     - \1
-                  error_handler: CUSTOM_VALUE
-                  error_handler_params: '0'
+                  error_handler: DISCARD_VALUE
               master_item:
                 key: 'vmware.vm.snapshot.get[{$VMWARE.URL},{#VM.UUID}]'
           trigger_prototypes:
