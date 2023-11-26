@@ -17,7 +17,7 @@ Tested on:
 
 <b>{#VM.NAME} Snapshot State: {#VM.NAME} Snapshot Age</b> - Item prototype calculates snapshot age via regex + javascript pre-prossesing from parent
 
-<b>{#VM.NAME} Snapshot State: {#VM.NAME} Snapshot Count</b> - Item prototype pulls snapshot count via regex pre-processing from parent
+<b>{#VM.NAME} Snapshot State: {#VM.NAME} Snapshot Count</b> - Item prototype pulls snapshot count via jsonpath pre-processing from parent
 
 <b>{#VM.NAME} Snapshot State: {#VM.NAME} Snapshot Oldest Date</b> - Item prototype pulls oldest snapshot created date via regex pre-processing from parent
 
@@ -25,9 +25,9 @@ Tested on:
 
 <b>[{#VM.NAME}]: VM has more than {$SNAP_COUNT_WARN} open snapshots</b> - Trigger prototype using a pre-defined threshold macro. Raises a WARNING severity alert. Depends on previous.
 
-<b>[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_CRIT} (Oldest snapshot date: {ITEM.VALUE2})</b> - Trigger protptype using a pre-defined threshold macro. Raises a HIGH severity alert
+<b>[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_CRIT} (Oldest snapshot date: {ITEM.VALUE2})</b> - Trigger prototype using a pre-defined threshold macro. Raises a HIGH severity alert
 
-<b>[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_WARN} (Oldest snapshot date: {ITEM.VALUE2})</b> - Trigger protptype using a pre-defined threshold macro. Raises a WARNING severity alert. Depends on previous.
+<b>[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_WARN} (Oldest snapshot date: {ITEM.VALUE2})</b> - Trigger prototype using a pre-defined threshold macro. Raises a WARNING severity alert. Depends on previous.
 
 
 ## Setup instructions
