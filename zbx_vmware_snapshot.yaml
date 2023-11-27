@@ -9,7 +9,7 @@ zabbix_export:
       name: 'VMware Snapshot'
       description: 'Template downloaded from: https://github.com/a-stoyanov/zabbix-vmware-snapshot'
       vendor:
-        name: 'https://github.com/a-stoyanov/'
+        name: 'github.com/a-stoyanov'
         version: 6.4-0
       groups:
         - name: Custom/VMware
@@ -33,20 +33,21 @@ zabbix_export:
                 - type: JSONPATH
                   parameters:
                     - $.oldestdate
-                  error_handler: DISCARD_VALUE
-                - type: REGEX
-                  parameters:
-                    - '(\d{4}-\d{2}-\d{2})'
-                    - \1
-                  error_handler: DISCARD_VALUE
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
                 - type: JAVASCRIPT
                   parameters:
                     - |
-                      var snapdate = new Date(value);
-                      var nowdate = new Date();
-                      var diffmsec = nowdate.getTime() - snapdate.getTime();
-                      var diffsec = Math.floor(diffmsec / 1000);
-                      return(diffsec)
+                      if (value == 0) {
+                        return 0
+                      } 
+                      else {
+                        var snapdate = new Date(value);
+                        var nowdate = new Date();
+                        var diffmsec = nowdate.getTime() - snapdate.getTime();
+                        var diffsec = Math.floor(diffmsec / 1000);
+                        return(diffsec)
+                      }
               master_item:
                 key: 'vmware.vm.snapshot.get[{$VMWARE.URL},{#VM.UUID}]'
             - uuid: 492da63757ff43dc89b3ba29cc8b6d9f
@@ -82,7 +83,6 @@ zabbix_export:
               name: '{#VM.NAME} Snapshot State'
               type: SIMPLE
               key: 'vmware.vm.snapshot.get[{$VMWARE.URL},{#VM.UUID}]'
-              delay: 1h
               trends: '0'
               value_type: TEXT
               username: '{$VMWARE.USERNAME}'
@@ -98,12 +98,14 @@ zabbix_export:
                 - type: JSONPATH
                   parameters:
                     - $.oldestdate
-                  error_handler: DISCARD_VALUE
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
                 - type: REGEX
                   parameters:
-                    - '(\d{4}-\d{2}-\d{2})'
-                    - \1
-                  error_handler: DISCARD_VALUE
+                    - '(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})'
+                    - \1@\2
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
               master_item:
                 key: 'vmware.vm.snapshot.get[{$VMWARE.URL},{#VM.UUID}]'
           trigger_prototypes:
