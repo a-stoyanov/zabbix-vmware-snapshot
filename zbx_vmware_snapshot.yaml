@@ -1,8 +1,5 @@
 zabbix_export:
   version: '6.4'
-  template_groups:
-    - uuid: ddedbdc1a08841ea9dbe8af361dff5fc
-      name: Custom/VMware
   templates:
     - uuid: e45ac62ca15e47d284afe092476af436
       template: 'VMware Snapshot'
