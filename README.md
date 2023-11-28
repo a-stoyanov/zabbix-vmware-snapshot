@@ -8,44 +8,47 @@ Tested on:
 * vCenter 7/8
 * Zabbix 6.4
 
+## Requirements:
+* Zabbix v6.4 or later
+* Zabbix template VMware (https://www.zabbix.com/integrations/vmware)
 
-## What does this template do?
-
-<b>Discover VM Snapshots</b> - LLD rule performs virtual machine discovery via vmware.vm.discovery[{$VMWARE.URL}]
-
-<b>{#VM.NAME} Snapshot State</b> - Item prototype pulls snapshot info via vmware.vm.snapshot.get[{$VMWARE.URL},{#VM.UUID}]
-
-<b>{#VM.NAME} Snapshot State: {#VM.NAME} Snapshot Age</b> - Item prototype calculates snapshot age via regex + javascript pre-prossesing from parent
-
-<b>{#VM.NAME} Snapshot State: {#VM.NAME} Snapshot Count</b> - Item prototype pulls snapshot count via jsonpath pre-processing from parent
-
-<b>{#VM.NAME} Snapshot State: {#VM.NAME} Snapshot Oldest Date</b> - Item prototype pulls oldest snapshot created date via regex pre-processing from parent
-
-<b>[{#VM.NAME}]: VM has more than {$SNAP_COUNT_CRIT} open snapshots</b> - Trigger prototype using a pre-defined threshold macro. Raises a HIGH severity alert
-
-<b>[{#VM.NAME}]: VM has more than {$SNAP_COUNT_WARN} open snapshots</b> - Trigger prototype using a pre-defined threshold macro. Raises a WARNING severity alert. Depends on previous.
-
-<b>[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_CRIT} (Oldest snapshot date: {ITEM.VALUE2})</b> - Trigger prototype using a pre-defined threshold macro. Raises a HIGH severity alert
-
-<b>[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_WARN} (Oldest snapshot date: {ITEM.VALUE2})</b> - Trigger prototype using a pre-defined threshold macro. Raises a WARNING severity alert. Depends on previous.
-
-
-## Setup instructions
+## Setup:
 
 1. Create a service account on your vCenter server with scope global and read-only permissions
 2. Import yaml template to your zabbix server
-3. Check/change pre-defined template macros. This can also be done on the host level.
-4. Attach template to your vCenter host. Make sure required macros are filled out
+3. Attach template to your vCenter host. Make sure required macros are filled out
 
+## Required macros:
 
-## Required template macros
-<pre>
-{$VMWARE.URL} = VMware service (vCenter or ESX hypervisor) SDK URL (https://servername/sdk)
-{$VMWARE.USERNAME} = VMware service user name
-{$VMWARE.PASSWORD} = VMware service {$USERNAME} user password
-{$SNAP_AGE_CRIT} = Max number of days since since snapshot was opened before triggering a HIGH alert (Default: 3d)
-{$SNAP_AGE_WARN} = Max number of days since since snapshot was opened before triggering a WARNING alert (Default: 1d)
-{$SNAP_COUNT_CRIT} = Max number of snapshots before triggering a HIGH alert (Default: 3)
-{$SNAP_COUNT_WARN} = Max number of snapshots before triggering a WARNING alert (Default: 1)
-</pre>
+|Macro|Default Value|Description|
+|-----|-------------|-----------|
+|{$VMWARE.URL}|N/A|VMware service (vCenter or ESX hypervisor) SDK URL (https://servername/sdk)|
+|{$VMWARE.USERNAME}|N/A|VMware service user name|
+|{$VMWARE.PASSWORD}|N/A|VMware service user name|
+|{$SNAP_AGE_CRIT}|3d|Max number of days since since snapshot was opened before triggering a HIGH alert|
+|{$SNAP_AGE_WARN}|1d|Max number of days since since snapshot was opened before triggering a WARNING alert|
+|{$SNAP_COUNT_CRIT}|3|Max number of snapshots before triggering a HIGH alert|
+|{$SNAP_COUNT_WARN}|1|Max number of snapshots before triggering a WARNING alert|
 
+## LLD rules:
+
+|Name|Description|Type|Key and additional info|
+|----|-----------|----|----|
+|Discover VM Snapshots|Discovery of guest VM snapshots|Simple Check|vmware.vm.discovery[{$VMWARE.URL}], Update interval: 1h|
+
+## Item prototypes:
+
+|Name|Description|Type|Key and additional info|
+|----|-----------|----|----|
+|{#VM.NAME} Snapshot State|Get snapshot info|Text|vmware.vm.snapshot.get[{$VMWARE.URL},{#VM.UUID}], Update interval: 1m|
+|{#VM.NAME} Snapshot State: {#VM.NAME} Snapshot Age|Calculate snapshot age via regex + javascript pre-prossesing from parent|Dependant item|vmware.vm.snapshot.age[{#VM.NAME}]|
+|{#VM.NAME} Snapshot State: {#VM.NAME} Snapshot Count|Get snapshot count via jsonpath pre-processing from parent|Dependant item|vmware.vm.snapshot.count[{#VM.NAME}]|
+|{#VM.NAME} Snapshot State: {#VM.NAME} Snapshot Oldest Date|Get oldest snapshot created date via regex pre-processing from parent|Dependant item|vmware.vm.snapshot.oldestdate[{#VM.NAME}]|
+
+## Trigger prototypes:
+|Name|Description|Expression|Severity|
+|----|-----------|----------|--------|
+|[{#VM.NAME}]: VM has more than {$SNAP_COUNT_CRIT} open snapshots|Raise alert when number of snapshots is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.count[{#VM.NAME}])>{$SNAP_COUNT_CRIT}|High|
+|[{#VM.NAME}]: VM has more than {$SNAP_COUNT_WARN} open snapshots|Raise alert when number of snapshots is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.count[{#VM.NAME}])>{$SNAP_COUNT_WARN}|Warning|
+|[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_CRIT} (Oldest snapshot date: {ITEM.VALUE2})|Raise alert when number of oldest snapshot age is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.age[{#VM.NAME}])>{$SNAP_AGE_CRIT} and last(/VMware Snapshot/vmware.vm.snapshot.oldestdate[{#VM.NAME}])<>0|High|
+|[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_WARN} (Oldest snapshot date: {ITEM.VALUE2})|Raise alert when number of oldest snapshot age is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.age[{#VM.NAME}])>{$SNAP_AGE_WARN} and last(/VMware Snapshot/vmware.vm.snapshot.oldestdate[{#VM.NAME}])<>0|Warning|
