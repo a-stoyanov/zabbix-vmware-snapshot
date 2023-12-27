@@ -25,8 +25,8 @@ Tested on:
 |{$VMWARE.URL}|N/A|VMware service (vCenter or ESX hypervisor) SDK URL (https://servername/sdk)|
 |{$VMWARE.USERNAME}|N/A|VMware service user name|
 |{$VMWARE.PASSWORD}|N/A|VMware service user name|
-|{$SNAP_AGE_CRIT}|3d|Max number of days since since snapshot was opened before triggering a HIGH alert|
-|{$SNAP_AGE_WARN}|1d|Max number of days since since snapshot was opened before triggering a WARNING alert|
+|{$SNAP_AGE_CRIT}|3d|Max number of days since snapshot was opened before triggering a HIGH alert|
+|{$SNAP_AGE_WARN}|1d|Max number of days since snapshot was opened before triggering a WARNING alert|
 |{$SNAP_COUNT_CRIT}|3|Max number of snapshots before triggering a HIGH alert|
 |{$SNAP_COUNT_WARN}|1|Max number of snapshots before triggering a WARNING alert|
 
@@ -50,5 +50,5 @@ Tested on:
 |----|-----------|----------|--------|
 |[{#VM.NAME}]: VM has more than {$SNAP_COUNT_CRIT} open snapshots|Raise alert when number of snapshots is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.count[{#VM.NAME}])>{$SNAP_COUNT_CRIT}|High|
 |[{#VM.NAME}]: VM has more than {$SNAP_COUNT_WARN} open snapshots|Raise alert when number of snapshots is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.count[{#VM.NAME}])>{$SNAP_COUNT_WARN}|Warning|
-|[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_CRIT} (Oldest snapshot date: {ITEM.VALUE2})|Raise alert when number of oldest snapshot age is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.age[{#VM.NAME}])>{$SNAP_AGE_CRIT} and last(/VMware Snapshot/vmware.vm.snapshot.oldestdate[{#VM.NAME}])<>0|High|
-|[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_WARN} (Oldest snapshot date: {ITEM.VALUE2})|Raise alert when number of oldest snapshot age is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.age[{#VM.NAME}])>{$SNAP_AGE_WARN} and last(/VMware Snapshot/vmware.vm.snapshot.oldestdate[{#VM.NAME}])<>0|Warning|
+|[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_CRIT} (Oldest snapshot date: {ITEM.VALUE2})|Raise alert when oldest snapshot age is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.age[{#VM.NAME}])>{$SNAP_AGE_CRIT} and last(/VMware Snapshot/vmware.vm.snapshot.oldestdate[{#VM.NAME}])<>0|High|
+|[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_WARN} (Oldest snapshot date: {ITEM.VALUE2})|Raise alert when oldest snapshot age is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.age[{#VM.NAME}])>{$SNAP_AGE_WARN} and last(/VMware Snapshot/vmware.vm.snapshot.oldestdate[{#VM.NAME}])<>0|Warning|
