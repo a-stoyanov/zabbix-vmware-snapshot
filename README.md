@@ -24,7 +24,7 @@ Tested on:
 |-----|-------------|-----------|
 |{$VMWARE.URL}|N/A|VMware service (vCenter or ESX hypervisor) SDK URL (https://servername/sdk)|
 |{$VMWARE.USERNAME}|N/A|VMware service user name|
-|{$VMWARE.PASSWORD}|N/A|VMware service user name|
+|{$VMWARE.PASSWORD}|N/A|VMware service user pass|
 |{$SNAP_AGE_CRIT}|3d|Max number of days since snapshot was opened before triggering a HIGH alert|
 |{$SNAP_AGE_WARN}|1d|Max number of days since snapshot was opened before triggering a WARNING alert|
 |{$SNAP_COUNT_CRIT}|3|Max number of snapshots before triggering a HIGH alert|
@@ -34,7 +34,7 @@ Tested on:
 
 |Name|Description|Type|Key and additional info|
 |----|-----------|----|----|
-|Discover VM Snapshots|Discovery of guest VM snapshots|Simple Check|vmware.vm.discovery[{$VMWARE.URL}], Update interval: 1h|
+|Discover VM Snapshots|Discovery of guest VM/snapshots|Simple Check|vmware.vm.discovery[{$VMWARE.URL}], Update interval: 1h|
 
 ## Item prototypes:
 
