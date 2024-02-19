@@ -1,12 +1,18 @@
 zabbix_export:
   version: '6.4'
+  template_groups:
+    - uuid: ddedbdc1a08841ea9dbe8af361dff5fc
+      name: Custom/VMware
   templates:
     - uuid: e45ac62ca15e47d284afe092476af436
       template: 'VMware Snapshot'
       name: 'VMware Snapshot'
-      description: 'Template downloaded from: https://github.com/a-stoyanov/zabbix-vmware-snapshot'
+      description: |
+        Ver. 1.0.4
+        
+        Template downloaded from: https://github.com/a-stoyanov/zabbix-vmware-snapshot
       vendor:
-        name: 'github.com/a-stoyanov'
+        name: github.com/a-stoyanov
         version: 6.4-0
       groups:
         - name: Custom/VMware
@@ -62,14 +68,18 @@ zabbix_export:
                 - uuid: ebea58d129474b9b8f3531c5e43f1b0b
                   expression: 'last(/VMware Snapshot/vmware.vm.snapshot.count[{#VM.NAME}])>{$SNAP_COUNT_CRIT}'
                   name: '[{#VM.NAME}]: VM has more than {$SNAP_COUNT_CRIT} open snapshots'
+                  opdata: 'total: {ITEM.LASTVALUE1}'
                   priority: HIGH
+                  description: 'There are more than {$SNAP_COUNT_CRIT} open snapshots'
                   tags:
                     - tag: snapshot
                       value: open
                 - uuid: 0c8eabd08ed649458466883cbd77fa26
                   expression: 'last(/VMware Snapshot/vmware.vm.snapshot.count[{#VM.NAME}])>{$SNAP_COUNT_WARN}'
                   name: '[{#VM.NAME}]: VM has more than {$SNAP_COUNT_WARN} open snapshots'
+                  opdata: 'total: {ITEM.LASTVALUE1}'
                   priority: WARNING
+                  description: 'There are more than {$SNAP_COUNT_WARN} open snapshots'
                   dependencies:
                     - name: '[{#VM.NAME}]: VM has more than {$SNAP_COUNT_CRIT} open snapshots'
                       expression: 'last(/VMware Snapshot/vmware.vm.snapshot.count[{#VM.NAME}])>{$SNAP_COUNT_CRIT}'
@@ -111,8 +121,10 @@ zabbix_export:
                 last(/VMware Snapshot/vmware.vm.snapshot.age[{#VM.NAME}])>{$SNAP_AGE_CRIT}
                 and
                 last(/VMware Snapshot/vmware.vm.snapshot.oldestdate[{#VM.NAME}])<>0
-              name: '[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_CRIT} (Oldest snapshot date: {ITEM.VALUE2})'
+              name: '[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_CRIT}'
+              opdata: 'oldest snapshot: {ITEM.VALUE2}'
               priority: HIGH
+              description: 'The oldest snapshot is more that {$SNAP_AGE_CRIT} old'
               tags:
                 - tag: snapshot
                   value: age
@@ -121,10 +133,12 @@ zabbix_export:
                 last(/VMware Snapshot/vmware.vm.snapshot.age[{#VM.NAME}])>{$SNAP_AGE_WARN}
                 and
                 last(/VMware Snapshot/vmware.vm.snapshot.oldestdate[{#VM.NAME}])<>0
-              name: '[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_WARN} (Oldest snapshot date: {ITEM.VALUE2})'
+              name: '[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_WARN}'
+              opdata: 'oldest snapshot: {ITEM.VALUE2}'
               priority: WARNING
+              description: 'The oldest snapshot is more that {$SNAP_AGE_WARN} old'
               dependencies:
-                - name: '[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_CRIT} (Oldest snapshot date: {ITEM.VALUE2})'
+                - name: '[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_CRIT}'
                   expression: |
                     last(/VMware Snapshot/vmware.vm.snapshot.age[{#VM.NAME}])>{$SNAP_AGE_CRIT}
                     and
