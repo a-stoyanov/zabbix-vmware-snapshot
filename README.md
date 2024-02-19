@@ -18,6 +18,11 @@ Tested on:
 2. Import yaml template to your zabbix server
 3. Attach template to your vCenter host. Make sure required macros are filled out
 
+## Important: 
+The LLD rule/key vmware.vm.discovery[{$VMWARE.URL}] may already be attached to your VC host object if you have the "VMware" or "VMware FQDN" template already linked.
+
+You can manually delete the previous LLD rule from your host object and then link the VMware snapshot template.
+
 ## Required macros:
 
 |Macro|Default Value|Description|
@@ -48,7 +53,7 @@ Tested on:
 ## Trigger prototypes:
 |Name|Description|Expression|Severity|
 |----|-----------|----------|--------|
-|[{#VM.NAME}]: VM has more than {$SNAP_COUNT_CRIT} open snapshots|Raise alert when number of snapshots is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.count[{#VM.NAME}])>{$SNAP_COUNT_CRIT}|High|
-|[{#VM.NAME}]: VM has more than {$SNAP_COUNT_WARN} open snapshots|Raise alert when number of snapshots is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.count[{#VM.NAME}])>{$SNAP_COUNT_WARN}|Warning|
-|[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_CRIT} (Oldest snapshot date: {ITEM.VALUE2})|Raise alert when oldest snapshot age is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.age[{#VM.NAME}])>{$SNAP_AGE_CRIT} and last(/VMware Snapshot/vmware.vm.snapshot.oldestdate[{#VM.NAME}])<>0|High|
-|[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_WARN} (Oldest snapshot date: {ITEM.VALUE2})|Raise alert when oldest snapshot age is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.age[{#VM.NAME}])>{$SNAP_AGE_WARN} and last(/VMware Snapshot/vmware.vm.snapshot.oldestdate[{#VM.NAME}])<>0|Warning|
+|[{#VM.NAME}]: VM has more than {$SNAP_COUNT_CRIT} open snapshots (total: {ITEM.LASTVALUE1})|Raise alert when number of snapshots is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.count[{#VM.NAME}])>{$SNAP_COUNT_CRIT}|High|
+|[{#VM.NAME}]: VM has more than {$SNAP_COUNT_WARN} open snapshots (total: {ITEM.LASTVALUE1})|Raise alert when number of snapshots is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.count[{#VM.NAME}])>{$SNAP_COUNT_WARN}|Warning|
+|[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_CRIT} (Oldest snapshot: {ITEM.VALUE2})|Raise alert when oldest snapshot age is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.age[{#VM.NAME}])>{$SNAP_AGE_CRIT} and last(/VMware Snapshot/vmware.vm.snapshot.oldestdate[{#VM.NAME}])<>0|High|
+|[{#VM.NAME}]: VM has snapshots older than {$SNAP_AGE_WARN} (Oldest snapshot: {ITEM.VALUE2})|Raise alert when oldest snapshot age is over threshold|last(/VMware Snapshot/vmware.vm.snapshot.age[{#VM.NAME}])>{$SNAP_AGE_WARN} and last(/VMware Snapshot/vmware.vm.snapshot.oldestdate[{#VM.NAME}])<>0|Warning|
